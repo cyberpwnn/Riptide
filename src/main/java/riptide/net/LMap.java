@@ -13,6 +13,21 @@ import java.util.concurrent.TimeUnit;
 
 public class LMap
 {
+	public static Map<String, String> getLanCache()
+	{
+		Map<String, String> addresses = new HashMap<String, String>();
+
+		for(String i : Riptide.cache.getKeys())
+		{
+			if(i.startsWith("lancache:x:"))
+			{
+				addresses.put(i.split("\\Q:x:\\E")[1], Riptide.cache.get(i));
+			}
+		}
+
+		return addresses;
+	}
+
 	public static Map<String, String> mapLan() throws IOException
 	{
 		String lanip = getLanAddress().getHostAddress();
@@ -23,7 +38,7 @@ public class LMap
 	public static Map<String, String> mapLan(String... subnets) throws IOException
 	{
 		Map<String, String> addresses = new HashMap<String, String>();
-		ExecutorService ex = Executors.newWorkStealingPool(64);
+		ExecutorService ex = Executors.newWorkStealingPool(32);
 		int timeout = 1000;
 
 		for(String subnet : subnets)
@@ -73,6 +88,7 @@ public class LMap
 
 								addresses.put(host, s);
 								System.out.println("[Riptide]: LANMapper Found " + host + " (" + s + ")");
+								Riptide.cache.put("lancache:x:" + host, s);
 							}
 						}
 
