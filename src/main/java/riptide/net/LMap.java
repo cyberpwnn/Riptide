@@ -23,7 +23,7 @@ public class LMap
 	public static Map<String, String> mapLan(String... subnets) throws IOException
 	{
 		Map<String, String> addresses = new HashMap<String, String>();
-		ExecutorService ex = Executors.newWorkStealingPool(128);
+		ExecutorService ex = Executors.newWorkStealingPool(64);
 		int timeout = 1000;
 
 		for(String subnet : subnets)

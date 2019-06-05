@@ -3,6 +3,7 @@ package riptide.stream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Socket;
 
 import riptide.device.AcceptingSensor;
 import riptide.queue.ConveyorBelt;
@@ -10,15 +11,17 @@ import riptide.queue.GenericConveyorBelt;
 
 public class GenericWitholdingDataStream<T> implements WitholdingDataStream<T>
 {
+	private final Socket socket;
 	private final AcceptingSensor<T> sensor;
 	private final DataInputStream inputStream;
 	private final ConveyorBelt<T> belt;
 
-	public GenericWitholdingDataStream(AcceptingSensor<T> sensor, InputStream stream, int beltSize)
+	public GenericWitholdingDataStream(AcceptingSensor<T> sensor, InputStream stream, int beltSize, Socket socket)
 	{
 		this.sensor = sensor;
 		this.inputStream = new DataInputStream(stream);
 		this.belt = new GenericConveyorBelt<>(beltSize);
+		this.socket = socket;
 	}
 
 	@Override
@@ -55,6 +58,7 @@ public class GenericWitholdingDataStream<T> implements WitholdingDataStream<T>
 	{
 		try
 		{
+			socket.close();
 			getInputStream().close();
 		}
 
@@ -68,5 +72,11 @@ public class GenericWitholdingDataStream<T> implements WitholdingDataStream<T>
 	public ConveyorBelt<T> getConveyorBelt()
 	{
 		return belt;
+	}
+
+	@Override
+	public Socket getSocket()
+	{
+		return socket;
 	}
 }

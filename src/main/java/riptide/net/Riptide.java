@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import riptide.cache.CacheProvider;
 import riptide.device.Device;
 import riptide.device.GenericDevice;
 import riptide.device.RemoteSensor;
@@ -26,23 +27,34 @@ public class Riptide
 	private static RiptideHost host;
 	public static String name = getHostName();
 	private static Map<String, List<Device>> alldevices;
-	private static List<Socket> openSockets = new ArrayList<>();
+	public static CacheProvider cache;
 
 	@SuppressWarnings("unchecked")
 	public static <T> WitholdingDataStream<T> stream(Device device, Sensor sensor) throws IOException
 	{
 		Socket s = new Socket(device.getName().split("\\Q/\\E")[0].trim(), Riptide.PORT);
-		openSockets.add(s);
 		DataInputStream din = new DataInputStream(s.getInputStream());
 		DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 		dos.writeUTF("stream");
 		dos.writeUTF(device.getName());
 		dos.writeUTF(sensor.getName());
 		dos.flush();
+		System.out.println("Flushed");
 
 		if(din.readUTF().equals("start"))
 		{
-			return (WitholdingDataStream<T>) (((RemoteSensor<T>) sensor).openStream(s.getInputStream(), 32));
+			WitholdingDataStream<T> t = (WitholdingDataStream<T>) (((RemoteSensor<T>) sensor).openStream(s.getInputStream(), s, 32));
+			return t;
+		}
+
+		try
+		{
+			s.close();
+		}
+
+		catch(Throwable e)
+		{
+
 		}
 
 		return null;
@@ -58,6 +70,18 @@ public class Riptide
 		}
 
 		return d;
+	}
+
+	public static void refreshDevices() throws IOException, InterruptedException
+	{
+		refreshDevices(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+
+			}
+		});
 	}
 
 	public static void refreshDevices(Runnable update) throws IOException, InterruptedException
@@ -158,5 +182,18 @@ public class Riptide
 		}
 
 		return "CP" + (int) (Math.random() * 99);
+	}
+
+	public static Device findDevice(String deviceName)
+	{
+		for(Device i : getDevices())
+		{
+			if(i.getName().equals(deviceName) || i.getName().endsWith(deviceName))
+			{
+				return i;
+			}
+		}
+
+		return null;
 	}
 }

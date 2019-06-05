@@ -1,6 +1,7 @@
 package riptide.device;
 
 import java.io.InputStream;
+import java.net.Socket;
 
 import riptide.data.DataType;
 import riptide.stream.GenericWitholdingDataStream;
@@ -14,8 +15,8 @@ public class RemoteSensor<T> extends GenericSensor implements AcceptingSensor<T>
 	}
 
 	@Override
-	public WitholdingDataStream<T> openStream(InputStream in, int beltSize)
+	public WitholdingDataStream<T> openStream(InputStream in, Socket socket, int beltSize)
 	{
-		return new GenericWitholdingDataStream<>(this, in, beltSize);
+		return new GenericWitholdingDataStream<>(this, in, beltSize, socket);
 	}
 }
