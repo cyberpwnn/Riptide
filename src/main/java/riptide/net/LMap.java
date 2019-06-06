@@ -28,18 +28,19 @@ public class LMap
 		return addresses;
 	}
 
-	public static Map<String, String> mapLan() throws IOException
+	public static Map<String, String> mapLan(MyOwnDamnConsumer<Double> progress, int threads, int timeout) throws IOException
 	{
 		String lanip = getLanAddress().getHostAddress();
 		String[] sub = lanip.split("\\Q.\\E");
-		return mapLan(sub[0] + "." + sub[1] + "." + sub[2]);
+		return mapLan(progress, threads, timeout, sub[0] + "." + sub[1] + "." + sub[2]);
 	}
 
-	public static Map<String, String> mapLan(String... subnets) throws IOException
+	public static Map<String, String> mapLan(MyOwnDamnConsumer<Double> progress, int threads, int timeout, String... subnets) throws IOException
 	{
+		int max = 255 * subnets.length;
+		int[] add = new int[] {0};
 		Map<String, String> addresses = new HashMap<String, String>();
-		ExecutorService ex = Executors.newWorkStealingPool(32);
-		int timeout = 1000;
+		ExecutorService ex = Executors.newWorkStealingPool(threads);
 
 		for(String subnet : subnets)
 		{
@@ -56,7 +57,7 @@ public class LMap
 
 						try
 						{
-							if(InetAddress.getByName(host).isReachable(timeout))
+							if(InetAddress.getByName(host).isReachable((int) timeout))
 							{
 								String s = InetAddress.getByName(host).getHostName();
 
@@ -88,13 +89,19 @@ public class LMap
 
 								addresses.put(host, s);
 								System.out.println("[Riptide]: LANMapper Found " + host + " (" + s + ")");
-								Riptide.cache.put("lancache:x:" + host, s);
+								// Riptide.cache.put("lancache:x:" + host, s);
 							}
 						}
 
 						catch(IOException e)
 						{
 
+						}
+
+						synchronized(progress)
+						{
+							add[0]++;
+							progress.accept((double) add[0] / (double) max);
 						}
 					}
 				});

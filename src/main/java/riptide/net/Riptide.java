@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +73,7 @@ public class Riptide
 		return d;
 	}
 
-	public static void refreshDevices() throws IOException, InterruptedException
+	public static void refreshDevices(MyOwnDamnConsumer<Double> progress, int threads, int timeout) throws IOException, InterruptedException
 	{
 		refreshDevices(new Runnable()
 		{
@@ -81,14 +82,18 @@ public class Riptide
 			{
 
 			}
-		});
+		}, progress, threads, timeout);
 	}
 
-	public static void refreshDevices(Runnable update) throws IOException, InterruptedException
+	public static void refreshDevices(Runnable update, MyOwnDamnConsumer<Double> progress, int threads, int timeout) throws IOException, InterruptedException
 	{
 		alldevices = new HashMap<>();
-		Map<String, String> netmap = LMap.mapLan();
-		ExecutorService ex = Executors.newWorkStealingPool(netmap.size());
+		Map<String, String> netmap = LMap.mapLan(progress, threads, timeout);
+		progress.accept(-1D);
+		progress.accept(0D);
+		int of = timeout <= 0 ? 1 : timeout;
+		int[] add = new int[] {0};
+		ExecutorService ex = Executors.newWorkStealingPool(netmap.size() + 2);
 
 		for(String i : netmap.keySet())
 		{
@@ -99,7 +104,7 @@ public class Riptide
 				{
 					try
 					{
-						List<Device> devices = refreshDevices(i);
+						List<Device> devices = refreshDevices(i, timeout);
 
 						for(Device i : devices)
 						{
@@ -114,6 +119,8 @@ public class Riptide
 						synchronized(alldevices)
 						{
 							alldevices.put(i, devices);
+							add[0]++;
+							progress.accept((double) add[0] / (double) of);
 							update.run();
 						}
 					}
@@ -130,10 +137,11 @@ public class Riptide
 		ex.awaitTermination(5, TimeUnit.SECONDS);
 	}
 
-	public static List<Device> refreshDevices(String ip) throws Throwable
+	public static List<Device> refreshDevices(String ip, int timeout) throws Throwable
 	{
 		List<Device> devices = new ArrayList<>();
-		Socket s = new Socket(ip, PORT);
+		Socket s = new Socket();
+		s.connect(new InetSocketAddress(ip, PORT), timeout);
 		DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 		DataInputStream din = new DataInputStream(s.getInputStream());
 		dos.writeUTF("list");

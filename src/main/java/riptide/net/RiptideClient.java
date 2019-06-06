@@ -17,23 +17,23 @@ public class RiptideClient
 		rollers = new ArrayList<>();
 	}
 
-	public void scanForDevices()
+	public void scanForDevices(int threads, int timeout, MyOwnDamnConsumer<Double> progress)
 	{
-		scanForDevices(new Runnable()
+		scanForDevices(threads, timeout, new Runnable()
 		{
 			@Override
 			public void run()
 			{
 
 			}
-		});
+		}, progress);
 	}
 
-	public void scanForDevices(Runnable updatedList)
+	public void scanForDevices(int threads, int timeout, Runnable updatedList, MyOwnDamnConsumer<Double> progress)
 	{
 		try
 		{
-			Riptide.refreshDevices(updatedList);
+			Riptide.refreshDevices(updatedList, progress, threads, timeout);
 		}
 
 		catch(Throwable e)
