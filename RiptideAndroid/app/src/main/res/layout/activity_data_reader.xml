@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".DataReader">
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="125dp"
+        android:layout_margin="7dp"
+        android:elevation="1dp"
+        android:translationZ="4dp">
+        <com.fdev.backgroundchart.GradientChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="125dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:plusColorStart="@color/colorBlack"
+            app:plusColorEnd="@color/colorBlack"
+            app:minusColorStart="@color/colorWhite"
+            app:minusColorEnd="@color/colorBlack"
+            app:chartLineColor="@color/colorBlack"
+            app:zoom="1"
+            app:isBezier="true"/>
+    </androidx.cardview.widget.CardView>
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="7dp"
+        android:id="@+id/card1"
+        android:elevation="1dp"
+        android:translationZ="4dp">
+        <TextView
+            android:text="Range: X - Y, Current: Z"
+            android:textSize="18dp"
+            android:maxLines="10"
+            android:id="@+id/dat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
