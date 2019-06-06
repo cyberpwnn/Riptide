@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import riptide.data.DataType;
 import riptide.device.Device;
+import riptide.device.GenericEmitter;
 import riptide.device.LocalDevice;
 import riptide.device.LocalSensor;
-import riptide.device.ProvidingSensor;
 import riptide.queue.DataRoller;
 
 public class Test
@@ -15,25 +15,50 @@ public class Test
 	public static void main(String[] a) throws IOException, InterruptedException
 	{
 		setupHost();
-		setupClient();
+		// setupClient();
 	}
 
 	private static void setupHost()
 	{
-		// SERVER
-		// New device "java" to host sensors
-		Device d = new LocalDevice("Java");
+		LocalSensor<Float> f;
+		LocalSensor<Float> g;
+		Device x = new LocalDevice("Java");
+		x.getSensors().add(f = new LocalSensor<Float>("Sin", DataType.FLOAT));
+		x.getSensors().add(g = new LocalSensor<Float>("Random", DataType.FLOAT));
+		Riptide.getHost().hostDevice(x);
 
-		// Add a new sensor called memory
-		ProvidingSensor<Float> s = new LocalSensor<Float>("Memory", DataType.FLOAT);
-		d.getSensors().add(s);
+		Device a = new LocalDevice("Bungeecord");
+		a.getSensors().add(new LocalSensor<Float>("Memory", DataType.FLOAT));
+		a.getSensors().add(new LocalSensor<Float>("CPU", DataType.FLOAT));
+		a.getSensors().add(new LocalSensor<Float>("Players", DataType.FLOAT));
+		a.getSensors().add(new LocalSensor<String>("Console", DataType.UTF));
+		a.getEmitters().add(new GenericEmitter("Command"));
+		Riptide.getHost().hostDevice(a);
 
-		// Host the device java
+		Device b = new LocalDevice("SkyBlock");
+		b.getSensors().add(new LocalSensor<Float>("Memory", DataType.FLOAT));
+		b.getSensors().add(new LocalSensor<Float>("CPU", DataType.FLOAT));
+		b.getSensors().add(new LocalSensor<Float>("Players", DataType.FLOAT));
+		b.getSensors().add(new LocalSensor<String>("Console", DataType.UTF));
+		b.getEmitters().add(new GenericEmitter("Command"));
+		Riptide.getHost().hostDevice(b);
+
+		Device c = new LocalDevice("Creative");
+		c.getSensors().add(new LocalSensor<Float>("Memory", DataType.FLOAT));
+		c.getSensors().add(new LocalSensor<Float>("CPU", DataType.FLOAT));
+		c.getSensors().add(new LocalSensor<Float>("Players", DataType.FLOAT));
+		c.getSensors().add(new LocalSensor<String>("Console", DataType.UTF));
+		c.getEmitters().add(new GenericEmitter("Command"));
+		Riptide.getHost().hostDevice(c);
+
+		Device d = new LocalDevice("Smartwatch");
+		d.getSensors().add(new LocalSensor<Float>("Memory", DataType.FLOAT));
+		d.getSensors().add(new LocalSensor<Float>("CPU", DataType.FLOAT));
+		d.getEmitters().add(new GenericEmitter("Notify"));
 		Riptide.getHost().hostDevice(d);
-
-		// Fill the memory sensor 4 times per second with current memory in mb (float)
-		Runtime rt = Runtime.getRuntime();
-		sched(() -> s.provide((float) (rt.totalMemory() - rt.freeMemory()) / 1024F / 1024F), 50);
+		double[] fxx = new double[] {0};
+		sched(() -> f.provide(((((float) Math.sin(fxx[0] += 0.1) + 0) / 1F))), 50);
+		sched(() -> g.provide((float) Math.random()), 50);
 	}
 
 	private static void setupClient()
@@ -42,7 +67,9 @@ public class Test
 		RiptideClient c = new RiptideClient();
 
 		// Scan for devices on LAN
-		c.scanForDevices();
+		c.scanForDevices(32, 1000, (f) ->
+		{
+		});
 
 		// Look for our device
 		for(Device i : Riptide.getDevices())
