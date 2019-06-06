@@ -28,9 +28,17 @@ public class LocalSensor<T> extends GenericSensor implements ProvidingSensor<T>
 	{
 		masterConveyor.push(t);
 
-		for(EmissiveDataStream<T> i : getStreams().values())
+		for(String i : new ArrayList<>(getStreams().keySet()))
 		{
-			i.push(t);
+			try
+			{
+				getStream(i).push(t);
+			}
+
+			catch(Throwable e)
+			{
+				getStreams().remove(i);
+			}
 		}
 	}
 
