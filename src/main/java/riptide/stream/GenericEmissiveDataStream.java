@@ -46,7 +46,7 @@ public class GenericEmissiveDataStream<T> implements EmissiveDataStream<T>
 
 		catch(IOException e)
 		{
-			e.printStackTrace();
+			close();
 		}
 	}
 
